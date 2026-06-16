@@ -769,6 +769,7 @@ id disableHome
 id edit_query
 id edit_text_id
 id end
+id errorText
 id expand_activities_button
 id expanded_menu
 id forever
@@ -801,6 +802,7 @@ id notification_main_column_container
 id off
 id on
 id parentPanel
+id progressBar
 id progress_circular
 id progress_horizontal
 id radio
