@@ -6,8 +6,6 @@ color black
 color primary
 color white
 drawable splash_background
-id progressBar
-id retryButton
 id webView
 layout activity_main
 layout activity_splash
