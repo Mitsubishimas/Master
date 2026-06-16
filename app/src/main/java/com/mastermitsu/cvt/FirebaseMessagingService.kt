@@ -12,9 +12,8 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
@@ -44,19 +43,15 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     private fun sendNotification(title: String, body: String, url: String) {
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("url", url)
-            putExtra("from_notification", true)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         
         val pendingIntent = PendingIntent.getActivity(
-            this,
-            System.currentTimeMillis().toInt(),
-            intent,
+            this, System.currentTimeMillis().toInt(), intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         
         val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
-        val vibrationPattern = longArrayOf(0, 500, 200, 500)
         
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
@@ -64,12 +59,9 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             .setContentText(body)
             .setAutoCancel(true)
             .setSound(soundUri)
-            .setVibrate(vibrationPattern)
-            .setLights(0xFF00D2FF.toInt(), 500, 1000)
+            .setVibrate(longArrayOf(0, 500, 200, 500))
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .build()
         
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -79,11 +71,9 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     private fun sendTokenToServer(token: String) {
         Thread {
             try {
-                val json = JSONObject().apply {
-                    put("token", token)
-                    put("platform", "android")
-                    put("app_version", "2.4.0")
-                }
+                val json = JSONObject()
+                json.put("token", token)
+                json.put("platform", "android")
                 
                 val client = OkHttpClient()
                 val body = json.toString().toRequestBody("application/json".toMediaType())
@@ -92,8 +82,8 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                     .post(body)
                     .build()
                 
-                val response = client.newCall(request).execute()
-                Log.d("FCM", "Token sent: ${response.isSuccessful}")
+                client.newCall(request).execute()
+                Log.d("FCM", "Token sent to server")
             } catch (e: Exception) {
                 Log.e("FCM", "Failed to send token", e)
             }
@@ -105,21 +95,14 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
             val audioAttributes = AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .build()
             
             val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Сообщения CVT",
-                NotificationManager.IMPORTANCE_HIGH
+                CHANNEL_ID, "Сообщения CVT", NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Push-уведомления о новых сообщениях"
-                enableLights(true)
-                lightColor = 0xFF00D2FF.toInt()
+                description = "Push-уведомления"
                 enableVibration(true)
-                vibrationPattern = longArrayOf(0, 500, 200, 500)
                 setSound(soundUri, audioAttributes)
-                setShowBadge(true)
             }
             
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
