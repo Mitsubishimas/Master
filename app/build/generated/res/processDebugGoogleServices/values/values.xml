@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="gcm_defaultSenderId" translatable="false">000000000000</string>
-    <string name="google_api_key" translatable="false">AIzaSyAAAAAAAAAAAAAAAAAAAAAAAAAAA</string>
-    <string name="google_app_id" translatable="false">1:000000000000:android:0000000000000000</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyAAAAAAAAAAAAAAAAAAAAAAAAAAA</string>
-    <string name="google_storage_bucket" translatable="false">cvtapp-temp.appspot.com</string>
-    <string name="project_id" translatable="false">cvtapp-temp</string>
+    <string name="gcm_defaultSenderId" translatable="false">136902505194</string>
+    <string name="google_api_key" translatable="false">AIzaSyB-R3mhPALr6OdsKJXK-77rR1IV5SKElLA</string>
+    <string name="google_app_id" translatable="false">1:136902505194:android:658a7654e03cc595601d93</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyB-R3mhPALr6OdsKJXK-77rR1IV5SKElLA</string>
+    <string name="google_storage_bucket" translatable="false">cvt-admin-panel.firebasestorage.app</string>
+    <string name="project_id" translatable="false">cvt-admin-panel</string>
 </resources>
