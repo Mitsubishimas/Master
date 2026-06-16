@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#E94560</color>
+    <color name="background">#060912</color>
+    <color name="black">#000000</color>
+    <color name="primary">#00D2FF</color>
+    <color name="white">#FFFFFF</color>
+    <string name="app_name">CVT</string>
+    <string name="gcm_defaultSenderId" translatable="false">983611811289</string>
+    <string name="google_api_key" translatable="false">AIzaSyBJHjqZVBaV_n9Mat3WS8oNL9EiaoyLfr4</string>
+    <string name="google_app_id" translatable="false">1:983611811289:android:51accbfc65ea35124ae5c8</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBJHjqZVBaV_n9Mat3WS8oNL9EiaoyLfr4</string>
+    <string name="google_storage_bucket" translatable="false">mastermitsu.firebasestorage.app</string>
+    <string name="loading">Загрузка...</string>
+    <string name="no_internet">Нет подключения к интернету</string>
+    <string name="project_id" translatable="false">mastermitsu</string>
+    <string name="retry">Повторить</string>
+    <style name="Theme.CVTApp" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:statusBarColor">@color/background</item>
+    </style>
+    <style name="Theme.CVTApp.Splash" parent="Theme.CVTApp">
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

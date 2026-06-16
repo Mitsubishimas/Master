@@ -5,6 +5,7 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
 import android.media.RingtoneManager
 import android.os.Build
 import android.util.Log
@@ -33,7 +34,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         
-        val title = message.notification?.title ?: message.data["title"] ?: "CVT"
+        val title = message.notification?.title ?: message.data["title"] ?: "Новое сообщение"
         val body = message.notification?.body ?: message.data["body"] ?: ""
         val url = message.data["url"] ?: "https://mastermitsu.ru"
         
@@ -43,6 +44,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     private fun sendNotification(title: String, body: String, url: String) {
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("url", url)
+            putExtra("from_notification", true)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         
@@ -53,17 +55,21 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         
-        val defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+        val vibrationPattern = longArrayOf(0, 500, 200, 500)
         
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(title)
             .setContentText(body)
             .setAutoCancel(true)
-            .setSound(defaultSound)
+            .setSound(soundUri)
+            .setVibrate(vibrationPattern)
+            .setLights(0xFF00D2FF.toInt(), 500, 1000)
             .setContentIntent(pendingIntent)
-            .setColor(getColor(android.R.color.holo_blue_dark))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .build()
         
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -76,7 +82,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 val json = JSONObject().apply {
                     put("token", token)
                     put("platform", "android")
-                    put("app_version", "2.2.0")
+                    put("app_version", "2.4.0")
                 }
                 
                 val client = OkHttpClient()
@@ -87,7 +93,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                     .build()
                 
                 val response = client.newCall(request).execute()
-                Log.d("FCM", "Token sent to server: ${response.isSuccessful}")
+                Log.d("FCM", "Token sent: ${response.isSuccessful}")
             } catch (e: Exception) {
                 Log.e("FCM", "Failed to send token", e)
             }
@@ -96,22 +102,32 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val soundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val audioAttributes = AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .build()
+            
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "CVT Уведомления",
+                "Сообщения CVT",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Push-уведомления от CVT"
+                description = "Push-уведомления о новых сообщениях"
                 enableLights(true)
-                lightColor = android.graphics.Color.parseColor("#00D2FF")
+                lightColor = 0xFF00D2FF.toInt()
                 enableVibration(true)
+                vibrationPattern = longArrayOf(0, 500, 200, 500)
+                setSound(soundUri, audioAttributes)
+                setShowBadge(true)
             }
+            
             val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             manager.createNotificationChannel(channel)
         }
     }
     
     companion object {
-        private const val CHANNEL_ID = "cvt_channel"
+        private const val CHANNEL_ID = "cvt_messages"
     }
 }

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="gcm_defaultSenderId" translatable="false">983611811289</string>
+    <string name="google_api_key" translatable="false">AIzaSyBJHjqZVBaV_n9Mat3WS8oNL9EiaoyLfr4</string>
+    <string name="google_app_id" translatable="false">1:983611811289:android:51accbfc65ea35124ae5c8</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBJHjqZVBaV_n9Mat3WS8oNL9EiaoyLfr4</string>
+    <string name="google_storage_bucket" translatable="false">mastermitsu.firebasestorage.app</string>
+    <string name="project_id" translatable="false">mastermitsu</string>
+</resources>
