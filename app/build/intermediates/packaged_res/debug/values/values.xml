@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#E94560</color>
+    <color name="background">#060912</color>
+    <color name="black">#000000</color>
+    <color name="primary">#00D2FF</color>
+    <color name="white">#FFFFFF</color>
+    <string name="app_name">CVT</string>
+    <string name="gcm_defaultSenderId" translatable="false">000000000000</string>
+    <string name="google_api_key" translatable="false">AIzaSyAAAAAAAAAAAAAAAAAAAAAAAAAAA</string>
+    <string name="google_app_id" translatable="false">1:000000000000:android:0000000000000000</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyAAAAAAAAAAAAAAAAAAAAAAAAAAA</string>
+    <string name="google_storage_bucket" translatable="false">cvtapp-temp.appspot.com</string>
+    <string name="loading">Загрузка...</string>
+    <string name="no_internet">Нет подключения к интернету</string>
+    <string name="project_id" translatable="false">cvtapp-temp</string>
+    <string name="retry">Повторить</string>
+    <style name="Theme.CVTApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/accent</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
+        <item name="android:windowBackground">@color/background</item>
+    </style>
+    <style name="Theme.CVTApp.Splash" parent="Theme.CVTApp">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

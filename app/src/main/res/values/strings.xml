@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CVT</string>
+    <string name="loading">Загрузка...</string>
+    <string name="no_internet">Нет подключения к интернету</string>
+    <string name="retry">Повторить</string>
+</resources>
