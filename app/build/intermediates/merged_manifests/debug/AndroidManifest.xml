@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.cvt.admin"
+    package="com.mastermitsu.cvt"
     android:versionCode="1"
     android:versionName="1.0.0" >
 
@@ -10,21 +10,16 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
-
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" /> <!-- Required by older versions of Google Play services to create IID tokens -->
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
     <permission
-        android:name="com.cvt.admin.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+        android:name="com.mastermitsu.cvt.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
         android:protectionLevel="signature" />
 
-    <uses-permission android:name="com.cvt.admin.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
+    <uses-permission android:name="com.mastermitsu.cvt.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" />
 
     <application
         android:allowBackup="true"
@@ -33,11 +28,10 @@
         android:extractNativeLibs="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true"
         android:theme="@style/Theme.CVTApp"
         android:usesCleartextTraffic="true" >
         <activity
-            android:name="com.cvt.admin.SplashActivity"
+            android:name="com.mastermitsu.cvt.SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.CVTApp.Splash" >
             <intent-filter>
@@ -47,13 +41,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="com.cvt.admin.MainActivity"
-            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
+            android:name="com.mastermitsu.cvt.MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false" />
 
         <service
-            android:name="com.cvt.admin.FirebaseMessagingService"
+            android:name="com.mastermitsu.cvt.FirebaseMessagingService"
             android:exported="false" >
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -62,14 +55,11 @@
 
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="cvt_notifications" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/primary" />
+            android:value="cvt_channel" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"
-            android:authorities="com.cvt.admin.androidx-startup"
+            android:authorities="com.mastermitsu.cvt.androidx-startup"
             android:exported="false" >
             <meta-data
                 android:name="androidx.emoji2.text.EmojiCompatInitializer"
@@ -139,7 +129,7 @@
 
         <provider
             android:name="com.google.firebase.provider.FirebaseInitProvider"
-            android:authorities="com.cvt.admin.firebaseinitprovider"
+            android:authorities="com.mastermitsu.cvt.firebaseinitprovider"
             android:directBootAware="true"
             android:exported="false"
             android:initOrder="100" />

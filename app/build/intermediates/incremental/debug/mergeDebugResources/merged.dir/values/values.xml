@@ -2023,11 +2023,11 @@
     <string name="fab_transformation_scrim_behavior" translatable="false">com.google.android.material.transformation.FabTransformationScrimBehavior</string>
     <string name="fab_transformation_sheet_behavior" translatable="false">com.google.android.material.transformation.FabTransformationSheetBehavior</string>
     <string name="fcm_fallback_notification_channel_label">Miscellaneous</string>
-    <string name="gcm_defaultSenderId" translatable="false">136902505194</string>
-    <string name="google_api_key" translatable="false">AIzaSyB-R3mhPALr6OdsKJXK-77rR1IV5SKElLA</string>
-    <string name="google_app_id" translatable="false">1:136902505194:android:658a7654e03cc595601d93</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyB-R3mhPALr6OdsKJXK-77rR1IV5SKElLA</string>
-    <string name="google_storage_bucket" translatable="false">cvt-admin-panel.firebasestorage.app</string>
+    <string name="gcm_defaultSenderId" translatable="false">983611811289</string>
+    <string name="google_api_key" translatable="false">AIzaSyBJHjqZVBaV_n9Mat3WS8oNL9EiaoyLfr4</string>
+    <string name="google_app_id" translatable="false">1:983611811289:android:51accbfc65ea35124ae5c8</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBJHjqZVBaV_n9Mat3WS8oNL9EiaoyLfr4</string>
+    <string name="google_storage_bucket" translatable="false">mastermitsu.firebasestorage.app</string>
     <string name="hide_bottom_view_on_scroll_behavior" translatable="false">com.google.android.material.behavior.HideBottomViewOnScrollBehavior</string>
     <string description="Content description for an icon that appears in the title area of a dialog" name="icon_content_description">Dialog Icon</string>
     <string name="item_view_role_description">Tab</string>
@@ -2144,7 +2144,7 @@
     <string name="path_password_eye_mask_strike_through" translatable="false">M2,4.27 L19.73,22 L22.27,19.46 L4.54,1.73 L4.54,1 L23,1 L23,23 L1,23 L1,4.27 Z</string>
     <string name="path_password_eye_mask_visible" translatable="false">M2,4.27 L2,4.27 L4.54,1.73 L4.54,1.73 L4.54,1 L23,1 L23,23 L1,23 L1,4.27 Z</string>
     <string name="path_password_strike_through" translatable="false">M3.27,4.27 L19.74,20.74</string>
-    <string name="project_id" translatable="false">cvt-admin-panel</string>
+    <string name="project_id" translatable="false">mastermitsu</string>
     <string name="retry">Повторить</string>
     <string name="search_menu_title">Search</string>
     <string name="searchbar_scrolling_view_behavior" translatable="false">

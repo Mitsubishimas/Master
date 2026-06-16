@@ -4,7 +4,7 @@
     "type": "COMPATIBLE_SCREEN_MANIFEST",
     "kind": "Directory"
   },
-  "applicationId": "com.cvt.admin",
+  "applicationId": "com.mastermitsu.cvt",
   "variantName": "debug",
   "elements": []
 }

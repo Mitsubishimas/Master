@@ -6,14 +6,14 @@
     <color name="primary">#00D2FF</color>
     <color name="white">#FFFFFF</color>
     <string name="app_name">CVT</string>
-    <string name="gcm_defaultSenderId" translatable="false">136902505194</string>
-    <string name="google_api_key" translatable="false">AIzaSyB-R3mhPALr6OdsKJXK-77rR1IV5SKElLA</string>
-    <string name="google_app_id" translatable="false">1:136902505194:android:658a7654e03cc595601d93</string>
-    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyB-R3mhPALr6OdsKJXK-77rR1IV5SKElLA</string>
-    <string name="google_storage_bucket" translatable="false">cvt-admin-panel.firebasestorage.app</string>
+    <string name="gcm_defaultSenderId" translatable="false">983611811289</string>
+    <string name="google_api_key" translatable="false">AIzaSyBJHjqZVBaV_n9Mat3WS8oNL9EiaoyLfr4</string>
+    <string name="google_app_id" translatable="false">1:983611811289:android:51accbfc65ea35124ae5c8</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBJHjqZVBaV_n9Mat3WS8oNL9EiaoyLfr4</string>
+    <string name="google_storage_bucket" translatable="false">mastermitsu.firebasestorage.app</string>
     <string name="loading">Загрузка...</string>
     <string name="no_internet">Нет подключения к интернету</string>
-    <string name="project_id" translatable="false">cvt-admin-panel</string>
+    <string name="project_id" translatable="false">mastermitsu</string>
     <string name="retry">Повторить</string>
     <style name="Theme.CVTApp" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>

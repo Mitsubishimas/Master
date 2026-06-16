@@ -1,4 +1,4 @@
-package com.cvt.admin
+package com.mastermitsu.cvt
 
 import android.content.Context
 import android.net.ConnectivityManager
