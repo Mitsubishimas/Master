@@ -1,9 +1,9 @@
 -- Merging decision tree log ---
 manifest
-ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:2:1-44:12
-INJECTED from /workspaces/Master/app/src/main/AndroidManifest.xml:2:1-44:12
-INJECTED from /workspaces/Master/app/src/main/AndroidManifest.xml:2:1-44:12
-INJECTED from /workspaces/Master/app/src/main/AndroidManifest.xml:2:1-44:12
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:2:1-45:12
+INJECTED from /workspaces/Master/app/src/main/AndroidManifest.xml:2:1-45:12
+INJECTED from /workspaces/Master/app/src/main/AndroidManifest.xml:2:1-45:12
+INJECTED from /workspaces/Master/app/src/main/AndroidManifest.xml:2:1-45:12
 MERGED from [androidx.appcompat:appcompat-resources:1.6.1] /home/codespace/.gradle/caches/transforms-3/aaa5ecf1ab2b24226b978bc050ea2749/transformed/appcompat-resources-1.6.1/AndroidManifest.xml:17:1-22:12
 MERGED from [androidx.appcompat:appcompat:1.6.1] /home/codespace/.gradle/caches/transforms-3/487f801bba16e364c5faffe7a32600b2/transformed/appcompat-1.6.1/AndroidManifest.xml:17:1-22:12
 MERGED from [com.google.firebase:firebase-messaging-ktx:23.4.0] /home/codespace/.gradle/caches/transforms-3/e2d7fcff00555fd0fc68bd9b3396d187/transformed/firebase-messaging-ktx-23.4.0/AndroidManifest.xml:17:1-32:12
@@ -97,9 +97,13 @@ MERGED from [com.google.android.datatransport:transport-runtime:3.1.8] /home/cod
 MERGED from [com.google.android.datatransport:transport-runtime:3.1.8] /home/codespace/.gradle/caches/transforms-3/d2c55b17b6b8f10dc8beaccd2fcab77c/transformed/transport-runtime-3.1.8/AndroidManifest.xml:22:5-79
 	android:name
 		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:7:22-76
+uses-permission#android.permission.VIBRATE
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:8:5-66
+	android:name
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:8:22-63
 application
-ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:9:5-43:19
-INJECTED from /workspaces/Master/app/src/main/AndroidManifest.xml:9:5-43:19
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:10:5-44:19
+INJECTED from /workspaces/Master/app/src/main/AndroidManifest.xml:10:5-44:19
 MERGED from [com.google.firebase:firebase-messaging-ktx:23.4.0] /home/codespace/.gradle/caches/transforms-3/e2d7fcff00555fd0fc68bd9b3396d187/transformed/firebase-messaging-ktx-23.4.0/AndroidManifest.xml:22:5-30:19
 MERGED from [com.google.firebase:firebase-messaging-ktx:23.4.0] /home/codespace/.gradle/caches/transforms-3/e2d7fcff00555fd0fc68bd9b3396d187/transformed/firebase-messaging-ktx-23.4.0/AndroidManifest.xml:22:5-30:19
 MERGED from [com.google.firebase:firebase-messaging:23.4.0] /home/codespace/.gradle/caches/transforms-3/905a143773e0bdaffb264ca4c32da917/transformed/firebase-messaging-23.4.0/AndroidManifest.xml:28:5-64:19
@@ -143,59 +147,59 @@ MERGED from [com.google.android.datatransport:transport-runtime:3.1.8] /home/cod
 	android:appComponentFactory
 		ADDED from [androidx.core:core:1.12.0] /home/codespace/.gradle/caches/transforms-3/e960ccc2ffdc1df4a296cc31727a2b02/transformed/core-1.12.0/AndroidManifest.xml:28:18-86
 	android:label
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:12:9-41
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:13:9-41
 	android:icon
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:11:9-43
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:12:9-43
 	android:allowBackup
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:10:9-35
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:11:9-35
 	android:theme
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:13:9-44
-	android:usesCleartextTraffic
 		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:14:9-44
+	android:usesCleartextTraffic
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:15:9-44
 activity#com.mastermitsu.cvt.SplashActivity
-ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:16:9-24:20
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:17:9-25:20
 	android:exported
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:18:13-36
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:19:13-36
 	android:theme
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:19:13-55
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:20:13-55
 	android:name
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:17:13-43
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:18:13-43
 intent-filter#action:name:android.intent.action.MAIN+category:name:android.intent.category.LAUNCHER
-ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:20:13-23:29
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:21:13-24:29
 action#android.intent.action.MAIN
-ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:21:17-69
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:22:17-69
 	android:name
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:21:25-66
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:22:25-66
 category#android.intent.category.LAUNCHER
-ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:22:17-77
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:23:17-77
 	android:name
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:22:27-74
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:23:27-74
 activity#com.mastermitsu.cvt.MainActivity
-ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:26:9-29:62
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:27:9-30:62
 	android:exported
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:28:13-37
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:29:13-37
 	android:configChanges
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:29:13-59
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:30:13-59
 	android:name
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:27:13-41
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:28:13-41
 service#com.mastermitsu.cvt.FirebaseMessagingService
-ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:31:9-37:19
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:32:9-38:19
 	android:exported
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:33:13-37
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:34:13-37
 	android:name
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:32:13-53
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:33:13-53
 intent-filter#action:name:com.google.firebase.MESSAGING_EVENT
-ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:34:13-36:29
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:35:13-37:29
 action#com.google.firebase.MESSAGING_EVENT
-ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:35:17-78
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:36:17-78
 	android:name
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:35:25-75
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:36:25-75
 meta-data#com.google.firebase.messaging.default_notification_channel_id
-ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:39:9-41:43
+ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:40:9-42:44
 	android:value
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:41:13-40
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:42:13-41
 	android:name
-		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:40:13-89
+		ADDED from /workspaces/Master/app/src/main/AndroidManifest.xml:41:13-89
 uses-sdk
 INJECTED from /workspaces/Master/app/src/main/AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from /workspaces/Master/app/src/main/AndroidManifest.xml

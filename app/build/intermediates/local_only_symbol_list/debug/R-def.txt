@@ -15,6 +15,7 @@ id btnRefresh
 id connectionStatus
 id errorText
 id progressBar
+id splashLogo
 id webView
 layout activity_main
 layout activity_splash
