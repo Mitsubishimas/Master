@@ -10,9 +10,11 @@ import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.view.View
 import android.webkit.*
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -26,25 +28,24 @@ class MainActivity : AppCompatActivity() {
     private lateinit var connectionStatus: TextView
     private lateinit var btnBack: LinearLayout
     private lateinit var btnHome: LinearLayout
-    private lateinit var btnForward: LinearLayout
+    private lateinit var btnUpdate: LinearLayout
     private lateinit var btnRefresh: LinearLayout
     
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var isOnline = true
     
-    @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility")
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         
-        // Инициализация View
         webView = findViewById(R.id.webView)
         progressBar = findViewById(R.id.progressBar)
         errorText = findViewById(R.id.errorText)
         connectionStatus = findViewById(R.id.connectionStatus)
         btnBack = findViewById(R.id.btnBack)
         btnHome = findViewById(R.id.btnHome)
-        btnForward = findViewById(R.id.btnForward)
+        btnUpdate = findViewById(R.id.btnUpdate)
         btnRefresh = findViewById(R.id.btnRefresh)
         
         setupWebView()
@@ -53,7 +54,6 @@ class MainActivity : AppCompatActivity() {
         setupFirebase()
         requestPermissions()
         
-        // Загрузка сайта или URL из уведомления
         val url = intent.getStringExtra("url") ?: "https://mastermitsu.ru"
         webView.loadUrl(url)
     }
@@ -74,27 +74,20 @@ class MainActivity : AppCompatActivity() {
             mediaPlaybackRequiresUserGesture = false
             useWideViewPort = true
             loadWithOverviewMode = true
-            loadsImagesAutomatically = true
-            blockNetworkImage = false
         }
         
-        // Включаем куки и сессии
         CookieManager.getInstance().setAcceptCookie(true)
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
         
         webView.webViewClient = object : WebViewClient() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                super.onPageStarted(view, url, favicon)
                 progressBar.visibility = ProgressBar.VISIBLE
                 errorText.visibility = TextView.GONE
                 webView.visibility = WebView.VISIBLE
-                updateNavButtons()
             }
             
             override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
                 progressBar.visibility = ProgressBar.GONE
-                updateNavButtons()
             }
             
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -109,28 +102,16 @@ class MainActivity : AppCompatActivity() {
                 }
                 return false
             }
-            
-            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
-                super.onReceivedError(view, request, error)
-                if (request?.isForMainFrame == true && isOnline) {
-                    showError()
-                }
-            }
         }
         
         webView.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView?, newProgress: Int) {
-                super.onProgressChanged(view, newProgress)
                 progressBar.progress = newProgress
-                if (newProgress == 100) {
-                    progressBar.visibility = ProgressBar.GONE
-                }
+                if (newProgress == 100) progressBar.visibility = ProgressBar.GONE
             }
             
             override fun onShowFileChooser(
-                webView: WebView?,
-                filePathCallback: ValueCallback<Array<Uri>>?,
-                fileChooserParams: FileChooserParams?
+                webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?
             ): Boolean {
                 this@MainActivity.filePathCallback = filePathCallback
                 try {
@@ -162,24 +143,14 @@ class MainActivity : AppCompatActivity() {
             webView.loadUrl("https://mastermitsu.ru")
         }
         
-        btnForward.setOnClickListener {
-            if (webView.canGoForward()) webView.goForward()
-            else Toast.makeText(this, "Нет следующей страницы", Toast.LENGTH_SHORT).show()
+        btnUpdate.setOnClickListener {
+            UpdateChecker.checkForUpdate(this, true)
         }
         
         btnRefresh.setOnClickListener {
-            if (isOnline) {
-                webView.reload()
-                Toast.makeText(this, "Обновление...", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Нет подключения", Toast.LENGTH_SHORT).show()
-            }
+            if (isOnline) webView.reload()
+            else Toast.makeText(this, "Нет подключения", Toast.LENGTH_SHORT).show()
         }
-    }
-    
-    private fun updateNavButtons() {
-        btnBack.alpha = if (webView.canGoBack()) 1.0f else 0.3f
-        btnForward.alpha = if (webView.canGoForward()) 1.0f else 0.3f
     }
     
     private fun checkConnection() {
@@ -190,22 +161,14 @@ class MainActivity : AppCompatActivity() {
         
         connectionStatus.visibility = View.VISIBLE
         connectionStatus.setBackgroundResource(
-            if (isOnline) R.drawable.status_dot_online
-            else R.drawable.status_dot_offline
+            if (isOnline) R.drawable.status_dot_online else R.drawable.status_dot_offline
         )
-    }
-    
-    private fun showError() {
-        webView.visibility = WebView.GONE
-        errorText.visibility = TextView.VISIBLE
-        progressBar.visibility = ProgressBar.GONE
     }
     
     private fun setupFirebase() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                val token = task.result
-                android.util.Log.d("FCM_TOKEN", token)
+                android.util.Log.d("FCM_TOKEN", task.result)
             }
         }
     }
@@ -214,29 +177,41 @@ class MainActivity : AppCompatActivity() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
                 != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
-                    200
-                )
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 200)
+            }
+        }
+        
+        // Разрешение на установку из неизвестных источников
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!packageManager.canRequestPackageInstalls()) {
+                AlertDialog.Builder(this)
+                    .setTitle("Разрешите установку")
+                    .setMessage("Для автообновлений нужно разрешить установку из неизвестных источников")
+                    .setPositiveButton("Настройки") { _, _ ->
+                        startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                            data = Uri.parse("package:$packageName")
+                        })
+                    }
+                    .setNegativeButton("Отмена", null)
+                    .show()
             }
         }
     }
     
+    override fun onResume() {
+        super.onResume()
+        checkConnection()
+        UpdateChecker.checkForUpdate(this)
+    }
+    
     override fun onBackPressed() {
-        if (webView.canGoBack()) {
-            webView.goBack()
-        } else {
-            super.onBackPressed()
-        }
+        if (webView.canGoBack()) webView.goBack() else super.onBackPressed()
     }
     
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1001) {
-            val results = if (resultCode == RESULT_OK && data?.data != null) {
-                arrayOf(data.data!!)
-            } else null
+            val results = if (resultCode == RESULT_OK && data?.data != null) arrayOf(data.data!!) else null
             filePathCallback?.onReceiveValue(results)
             filePathCallback = null
         }
@@ -244,13 +219,6 @@ class MainActivity : AppCompatActivity() {
     
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        intent?.getStringExtra("url")?.let { url ->
-            webView.loadUrl(url)
-        }
-    }
-    
-    override fun onResume() {
-        super.onResume()
-        checkConnection()
+        intent?.getStringExtra("url")?.let { webView.loadUrl(it) }
     }
 }

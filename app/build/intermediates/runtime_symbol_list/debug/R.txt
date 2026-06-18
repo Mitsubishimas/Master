@@ -753,9 +753,9 @@ int id beginning 0x7f080041
 int id blocking 0x7f080042
 int id bottom 0x7f080043
 int id btnBack 0x7f080044
-int id btnForward 0x7f080045
-int id btnHome 0x7f080046
-int id btnRefresh 0x7f080047
+int id btnHome 0x7f080045
+int id btnRefresh 0x7f080046
+int id btnUpdate 0x7f080047
 int id buttonPanel 0x7f080048
 int id center_vertical 0x7f080049
 int id checkbox 0x7f08004a
@@ -1854,3 +1854,4 @@ int[] styleable ViewStubCompat { 0x010100d0, 0x010100f2, 0x010100f3 }
 int styleable ViewStubCompat_android_id 0
 int styleable ViewStubCompat_android_layout 1
 int styleable ViewStubCompat_android_inflatedId 2
+int xml file_paths 0x7f110000

@@ -9,9 +9,9 @@ drawable splash_background
 drawable status_dot_offline
 drawable status_dot_online
 id btnBack
-id btnForward
 id btnHome
 id btnRefresh
+id btnUpdate
 id connectionStatus
 id errorText
 id progressBar
@@ -33,3 +33,4 @@ string project_id
 string retry
 style Theme.CVTApp
 style Theme.CVTApp.Splash
+xml file_paths

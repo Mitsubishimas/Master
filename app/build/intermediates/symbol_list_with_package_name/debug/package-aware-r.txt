@@ -754,9 +754,9 @@ id beginning
 id blocking
 id bottom
 id btnBack
-id btnForward
 id btnHome
 id btnRefresh
+id btnUpdate
 id buttonPanel
 id center_vertical
 id checkbox
@@ -1407,3 +1407,4 @@ styleable Toolbar android_gravity android_minHeight buttonGravity collapseConten
 styleable View android_theme android_focusable paddingEnd paddingStart theme
 styleable ViewBackgroundHelper android_background backgroundTint backgroundTintMode
 styleable ViewStubCompat android_id android_layout android_inflatedId
+xml file_paths
