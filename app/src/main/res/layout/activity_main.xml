@@ -82,18 +82,8 @@
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackground">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="◀"
-                android:textColor="#00D2FF"
-                android:textSize="22sp" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Назад"
-                android:textColor="#888888"
-                android:textSize="10sp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="◀" android:textColor="#00D2FF" android:textSize="22sp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Назад" android:textColor="#888888" android:textSize="10sp" />
         </LinearLayout>
         
         <LinearLayout
@@ -106,22 +96,12 @@
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackground">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="⌂"
-                android:textColor="#00D2FF"
-                android:textSize="22sp" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Главная"
-                android:textColor="#888888"
-                android:textSize="10sp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⌂" android:textColor="#00D2FF" android:textSize="22sp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Главная" android:textColor="#888888" android:textSize="10sp" />
         </LinearLayout>
         
         <LinearLayout
-            android:id="@+id/btnUpdate"
+            android:id="@+id/btnForward"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -130,18 +110,8 @@
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackground">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="⬇"
-                android:textColor="#00D2FF"
-                android:textSize="22sp" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Обновить"
-                android:textColor="#888888"
-                android:textSize="10sp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="▶" android:textColor="#00D2FF" android:textSize="22sp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Вперёд" android:textColor="#888888" android:textSize="10sp" />
         </LinearLayout>
         
         <LinearLayout
@@ -154,18 +124,8 @@
             android:clickable="true"
             android:focusable="true"
             android:background="?attr/selectableItemBackground">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="↻"
-                android:textColor="#00D2FF"
-                android:textSize="22sp" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Обновить"
-                android:textColor="#888888"
-                android:textSize="10sp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="↻" android:textColor="#00D2FF" android:textSize="22sp" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Обновить" android:textColor="#888888" android:textSize="10sp" />
         </LinearLayout>
         
     </LinearLayout>

@@ -28,7 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var connectionStatus: TextView
     private lateinit var btnBack: LinearLayout
     private lateinit var btnHome: LinearLayout
-    private lateinit var btnUpdate: LinearLayout
+    private lateinit var btnForward: LinearLayout
     private lateinit var btnRefresh: LinearLayout
     
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         connectionStatus = findViewById(R.id.connectionStatus)
         btnBack = findViewById(R.id.btnBack)
         btnHome = findViewById(R.id.btnHome)
-        btnUpdate = findViewById(R.id.btnUpdate)
+        btnForward = findViewById(R.id.btnForward)
         btnRefresh = findViewById(R.id.btnRefresh)
         
         setupWebView()
@@ -143,8 +143,9 @@ class MainActivity : AppCompatActivity() {
             webView.loadUrl("https://mastermitsu.ru")
         }
         
-        btnUpdate.setOnClickListener {
-            UpdateChecker.checkForUpdate(this, true)
+        btnForward.setOnClickListener {
+            if (webView.canGoForward()) webView.goForward()
+            else Toast.makeText(this, "Нет следующей страницы", Toast.LENGTH_SHORT).show()
         }
         
         btnRefresh.setOnClickListener {
@@ -181,12 +182,11 @@ class MainActivity : AppCompatActivity() {
             }
         }
         
-        // Разрешение на установку из неизвестных источников
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!packageManager.canRequestPackageInstalls()) {
                 AlertDialog.Builder(this)
                     .setTitle("Разрешите установку")
-                    .setMessage("Для автообновлений нужно разрешить установку из неизвестных источников")
+                    .setMessage("Для автообновлений нужно разрешить установку приложений")
                     .setPositiveButton("Настройки") { _, _ ->
                         startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
                             data = Uri.parse("package:$packageName")
@@ -201,7 +201,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkConnection()
-        UpdateChecker.checkForUpdate(this)
+        UpdateChecker.checkForUpdate(this)  // Автоматическая проверка
     }
     
     override fun onBackPressed() {

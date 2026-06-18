@@ -24,14 +24,16 @@ object UpdateChecker {
     private const val PREFS_NAME = "cvt_update_prefs"
     private const val LAST_CHECK_KEY = "last_update_check"
     private const val GITHUB_API = "https://api.github.com/repos/Mitsubishimas/Master/releases/latest"
+    private const val CURRENT_VERSION = "v2.6.0"  // Менять при каждом релизе!
     
-    fun checkForUpdate(context: Context, showDialog: Boolean = false) {
+    fun checkForUpdate(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val lastCheck = prefs.getLong(LAST_CHECK_KEY, 0)
         val currentTime = System.currentTimeMillis()
         val weekInMillis = 7L * 24 * 60 * 60 * 1000
         
-        if (!showDialog && (currentTime - lastCheck) < weekInMillis) {
+        // Проверяем раз в неделю
+        if ((currentTime - lastCheck) < weekInMillis) {
             return
         }
         
@@ -50,48 +52,61 @@ object UpdateChecker {
                 reader.close()
                 
                 val json = JSONObject(response)
-                val latestVersion = json.getString("tag_name")
+                val serverVersion = json.getString("tag_name")
                 val assets = json.getJSONArray("assets")
                 
-                if (assets.length() > 0) {
+                // Сравниваем версии
+                if (serverVersion != CURRENT_VERSION && assets.length() > 0) {
                     val downloadUrl = assets.getJSONObject(0).getString("browser_download_url")
-                    val currentVersion = "v1.0.0"
                     
-                    if (latestVersion != currentVersion) {
+                    // Проверяем, что серверная версия новее
+                    if (isVersionNewer(CURRENT_VERSION, serverVersion)) {
                         Handler(Looper.getMainLooper()).post {
-                            showUpdateDialog(context, latestVersion, downloadUrl)
-                        }
-                    } else {
-                        if (showDialog) {
-                            Handler(Looper.getMainLooper()).post {
-                                Toast.makeText(context, "У вас последняя версия", Toast.LENGTH_SHORT).show()
-                            }
+                            showUpdateDialog(context, serverVersion, downloadUrl)
                         }
                     }
                 }
             } catch (e: Exception) {
-                if (showDialog) {
-                    Handler(Looper.getMainLooper()).post {
-                        Toast.makeText(context, "Не удалось проверить обновления", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                // Тихая ошибка — без интернета или сервер недоступен
             }
         }.start()
+    }
+    
+    private fun isVersionNewer(current: String, server: String): Boolean {
+        try {
+            val currentParts = current.replace("v", "").split(".")
+            val serverParts = server.replace("v", "").split(".")
+            
+            for (i in 0 until minOf(currentParts.size, serverParts.size)) {
+                val currentNum = currentParts[i].toInt()
+                val serverNum = serverParts[i].toInt()
+                
+                if (serverNum > currentNum) return true
+                if (serverNum < currentNum) return false
+            }
+            
+            // Если все части равны, но серверная версия длиннее — она новее
+            return serverParts.size > currentParts.size
+        } catch (e: Exception) {
+            return false
+        }
     }
     
     private fun showUpdateDialog(context: Context, version: String, downloadUrl: String) {
         try {
             AlertDialog.Builder(context)
-                .setTitle("Доступна новая версия")
-                .setMessage("Версия $version готова к установке.\n\nСкачать и установить сейчас?")
-                .setPositiveButton("Обновить") { _, _ ->
+                .setTitle("Доступно обновление")
+                .setMessage("Новая версия $version доступна для установки.\n\nТекущая версия: $CURRENT_VERSION\n\nОбновить сейчас?")
+                .setPositiveButton("Скачать и установить") { _, _ ->
                     downloadAndInstall(context, downloadUrl)
                 }
-                .setNegativeButton("Позже", null)
+                .setNegativeButton("Позже") { dialog, _ ->
+                    dialog.dismiss()
+                }
                 .setCancelable(false)
                 .show()
         } catch (e: Exception) {
-            Toast.makeText(context, "Ошибка отображения диалога", Toast.LENGTH_SHORT).show()
+            // Активность уже закрыта
         }
     }
     
@@ -104,8 +119,8 @@ object UpdateChecker {
             
             val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             val request = DownloadManager.Request(Uri.parse(downloadUrl))
-                .setTitle("Скачивание обновления")
-                .setDescription("Загрузка $fileName...")
+                .setTitle("Скачивание обновления Master")
+                .setDescription("Загрузка новой версии...")
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationUri(Uri.fromFile(file))
                 .setAllowedOverMetered(true)
@@ -129,10 +144,10 @@ object UpdateChecker {
                 context.registerReceiver(onComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
             }
             
-            Toast.makeText(context, "Загрузка началась...", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Загрузка обновления...", Toast.LENGTH_SHORT).show()
             
         } catch (e: Exception) {
-            Toast.makeText(context, "Ошибка загрузки: ${e.message}", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Ошибка загрузки", Toast.LENGTH_LONG).show()
         }
     }
     
