@@ -12,8 +12,8 @@ android {
         applicationId = "com.mastermitsu.cvt"
         minSdk = 21
         targetSdk = 34
-        versionCode = 2
-        versionName = "2.9.0"
+        versionCode = 4
+        versionName = "2.9.1"
     }
 
     signingConfigs {
@@ -33,6 +33,11 @@ android {
         }
     }
 
+    lint {
+        disable.add("DuplicatePlatformClasses")
+        checkReleaseBuilds = false
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -48,5 +53,4 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-messaging-ktx")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("org.json:json:20231013")
 }

@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var isOnline = true
+    private var cameraPermissionRequested = false
     
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
         checkConnection()
         setupFirebase()
-        requestPermissions()
+        requestAllPermissions()
         
         val url = intent.getStringExtra("url") ?: "https://mastermitsu.ru"
         webView.loadUrl(url)
@@ -106,9 +107,26 @@ class MainActivity : AppCompatActivity() {
                 progressBar.progress = newProgress
                 if (newProgress == 100) progressBar.visibility = ProgressBar.GONE
             }
+            
+            override fun onPermissionRequest(request: PermissionRequest?) {
+                // Автоматически разрешаем WebView-запросы (камера, микрофон)
+                request?.grant(request.resources)
+            }
+            
             override fun onShowFileChooser(webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?): Boolean {
+                // Проверяем разрешение камеры перед открытием
+                if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.CAMERA) 
+                    != PackageManager.PERMISSION_GRANTED) {
+                    requestCameraPermission()
+                    filePathCallback?.onReceiveValue(null)
+                    return true
+                }
+                
                 this@MainActivity.filePathCallback = filePathCallback
-                try { startActivityForResult(Intent.createChooser(fileChooserParams?.createIntent(), "Выберите файл"), 1001) }
+                try { 
+                    val intent = fileChooserParams?.createIntent()
+                    startActivityForResult(Intent.createChooser(intent, "Выберите файл"), 1001)
+                }
                 catch (e: Exception) { filePathCallback?.onReceiveValue(null) }
                 return true
             }
@@ -154,19 +172,66 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
-    private fun requestPermissions() {
+    private fun requestAllPermissions() {
+        val permissionsToRequest = mutableListOf<String>()
+        
+        // Проверка уведомлений (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 200)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) 
+                != PackageManager.PERMISSION_GRANTED) {
+                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
             }
         }
+        
+        // Проверка камеры
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) 
+            != PackageManager.PERMISSION_GRANTED) {
+            permissionsToRequest.add(Manifest.permission.CAMERA)
+        }
+        
+        if (permissionsToRequest.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsToRequest.toTypedArray(), 200)
+        }
+        
+        // Разрешение на установку (Android 8+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!packageManager.canRequestPackageInstalls()) {
                 AlertDialog.Builder(this)
                     .setTitle("Разрешите установку")
-                    .setMessage("Для автообновлений нужно разрешить установку")
-                    .setPositiveButton("Настройки") { _, _ -> startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply { data = Uri.parse("package:$packageName") }) }
-                    .setNegativeButton("Отмена", null).show()
+                    .setMessage("Для автообновлений нужно разрешить установку приложений")
+                    .setPositiveButton("Настройки") { _, _ -> 
+                        startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply { 
+                            data = Uri.parse("package:$packageName") 
+                        }) 
+                    }
+                    .setNegativeButton("Отмена", null)
+                    .show()
+            }
+        }
+    }
+    
+    private fun requestCameraPermission() {
+        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+            AlertDialog.Builder(this)
+                .setTitle("Доступ к камере")
+                .setMessage("Для сканирования QR-кодов и загрузки файлов нужен доступ к камере")
+                .setPositiveButton("Разрешить") { _, _ ->
+                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 201)
+                }
+                .setNegativeButton("Отмена", null)
+                .show()
+        } else {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 201)
+        }
+    }
+    
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 200 || requestCode == 201) {
+            for (i in permissions.indices) {
+                if (permissions[i] == Manifest.permission.CAMERA && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Камера разрешена", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -184,7 +249,8 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1001) {
-            filePathCallback?.onReceiveValue(if (resultCode == RESULT_OK && data?.data != null) arrayOf(data.data!!) else null)
+            val results = if (resultCode == RESULT_OK && data?.data != null) arrayOf(data.data!!) else null
+            filePathCallback?.onReceiveValue(results)
             filePathCallback = null
         }
     }

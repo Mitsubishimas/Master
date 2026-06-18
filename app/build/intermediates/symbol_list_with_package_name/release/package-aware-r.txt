@@ -754,6 +754,7 @@ id beginning
 id blocking
 id bottom
 id btnBack
+id btnCheckUpdate
 id btnForward
 id btnHome
 id btnRefresh
@@ -770,7 +771,6 @@ id contentPanel
 id custom
 id customPanel
 id dark
-id darkThemeSwitch
 id decor_content_parent
 id default_activity_button
 id dialog_button
@@ -836,7 +836,6 @@ id shortcut
 id showCustom
 id showHome
 id showTitle
-id soundSpinner
 id soundSwitch
 id spacer
 id special_effects_controller_view_tag

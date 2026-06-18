@@ -9,15 +9,14 @@ drawable splash_background
 drawable status_dot_offline
 drawable status_dot_online
 id btnBack
+id btnCheckUpdate
 id btnForward
 id btnHome
 id btnRefresh
 id btnSettings
 id connectionStatus
-id darkThemeSwitch
 id errorText
 id progressBar
-id soundSpinner
 id soundSwitch
 id splashLogo
 id versionText

@@ -935,19 +935,6 @@ library {
     value: 1
   }
 }
-library {
-  maven_library {
-    groupId: "org.json"
-    artifactId: "json"
-    version: "20231013"
-  }
-  digests {
-    sha256: "\017\030\031-\362\211\021N\027\252\032\r\n\177\203r\314\237\\~O~9\255\317\211\006\376qO\247\323"
-  }
-  repo_index {
-    value: 1
-  }
-}
 library_dependencies {
   library_dep_index: 1
   library_dep_index: 2
@@ -1436,7 +1423,6 @@ module_dependencies {
   dependency_index: 48
   dependency_index: 49
   dependency_index: 75
-  dependency_index: 78
 }
 repositories {
   maven_repo {
