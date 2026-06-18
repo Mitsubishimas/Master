@@ -757,6 +757,7 @@ id btnBack
 id btnForward
 id btnHome
 id btnRefresh
+id btnSettings
 id buttonPanel
 id center_vertical
 id checkbox
@@ -769,6 +770,7 @@ id contentPanel
 id custom
 id customPanel
 id dark
+id darkThemeSwitch
 id decor_content_parent
 id default_activity_button
 id dialog_button
@@ -834,6 +836,8 @@ id shortcut
 id showCustom
 id showHome
 id showTitle
+id soundSpinner
+id soundSwitch
 id spacer
 id special_effects_controller_view_tag
 id splashLogo
@@ -872,6 +876,8 @@ id unchecked
 id uniform
 id up
 id useLogo
+id versionText
+id vibrationSwitch
 id view_tree_lifecycle_owner
 id view_tree_on_back_pressed_dispatcher_owner
 id view_tree_saved_state_registry_owner
@@ -923,6 +929,7 @@ layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_main
+layout activity_settings
 layout activity_splash
 layout custom_dialog
 layout ime_base_split_test_activity

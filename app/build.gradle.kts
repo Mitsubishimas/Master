@@ -13,12 +13,23 @@ android {
         minSdk = 21
         targetSdk = 34
         versionCode = 1
-        versionName = "2.7.0"
+        versionName = "2.8.0"
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("../master.keystore")
+            storePassword = "master123"
+            keyAlias = "master"
+            keyPassword = "master123"
+        }
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            isShrinkResources = false
+            signingConfig = signingConfigs.getByName("release")
         }
         debug {
             isMinifyEnabled = false
@@ -38,10 +49,8 @@ android {
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    
     implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
     implementation("com.google.firebase:firebase-messaging-ktx")
-    
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("org.json:json:20231013")
 }

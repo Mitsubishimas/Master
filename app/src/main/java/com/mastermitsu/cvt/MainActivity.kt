@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnHome: LinearLayout
     private lateinit var btnForward: LinearLayout
     private lateinit var btnRefresh: LinearLayout
+    private lateinit var btnSettings: LinearLayout
     
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var isOnline = true
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         btnHome = findViewById(R.id.btnHome)
         btnForward = findViewById(R.id.btnForward)
         btnRefresh = findViewById(R.id.btnRefresh)
+        btnSettings = findViewById(R.id.btnSettings)
         
         setupWebView()
         setupNavigation()
@@ -85,19 +87,14 @@ class MainActivity : AppCompatActivity() {
                 errorText.visibility = TextView.GONE
                 webView.visibility = WebView.VISIBLE
             }
-            
             override fun onPageFinished(view: WebView?, url: String?) {
                 progressBar.visibility = ProgressBar.GONE
             }
-            
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 val url = request?.url.toString()
                 if (!url.contains("mastermitsu.ru")) {
-                    try {
-                        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                    } catch (e: Exception) {
-                        Toast.makeText(this@MainActivity, "Не удалось открыть ссылку", Toast.LENGTH_SHORT).show()
-                    }
+                    try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+                    catch (e: Exception) { Toast.makeText(this@MainActivity, "Не удалось открыть ссылку", Toast.LENGTH_SHORT).show() }
                     return true
                 }
                 return false
@@ -109,48 +106,36 @@ class MainActivity : AppCompatActivity() {
                 progressBar.progress = newProgress
                 if (newProgress == 100) progressBar.visibility = ProgressBar.GONE
             }
-            
-            override fun onShowFileChooser(
-                webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?
-            ): Boolean {
+            override fun onShowFileChooser(webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?): Boolean {
                 this@MainActivity.filePathCallback = filePathCallback
-                try {
-                    val intent = fileChooserParams?.createIntent()
-                    startActivityForResult(Intent.createChooser(intent, "Выберите файл"), 1001)
-                } catch (e: Exception) {
-                    filePathCallback?.onReceiveValue(null)
-                }
+                try { startActivityForResult(Intent.createChooser(fileChooserParams?.createIntent(), "Выберите файл"), 1001) }
+                catch (e: Exception) { filePathCallback?.onReceiveValue(null) }
                 return true
             }
         }
         
         webView.setDownloadListener { url, _, _, _, _ ->
-            try {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-            } catch (e: Exception) {
-                Toast.makeText(this, "Не удалось открыть файл", Toast.LENGTH_SHORT).show()
-            }
+            try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
+            catch (e: Exception) { Toast.makeText(this, "Не удалось открыть файл", Toast.LENGTH_SHORT).show() }
         }
     }
     
     private fun setupNavigation() {
         btnBack.setOnClickListener {
             if (webView.canGoBack()) webView.goBack()
-            else Toast.makeText(this, "Это главная страница", Toast.LENGTH_SHORT).show()
+            else Toast.makeText(this, "Главная страница", Toast.LENGTH_SHORT).show()
         }
-        
-        btnHome.setOnClickListener {
-            webView.loadUrl("https://mastermitsu.ru")
-        }
-        
+        btnHome.setOnClickListener { webView.loadUrl("https://mastermitsu.ru") }
         btnForward.setOnClickListener {
             if (webView.canGoForward()) webView.goForward()
             else Toast.makeText(this, "Нет следующей страницы", Toast.LENGTH_SHORT).show()
         }
-        
         btnRefresh.setOnClickListener {
             if (isOnline) webView.reload()
             else Toast.makeText(this, "Нет подключения", Toast.LENGTH_SHORT).show()
+        }
+        btnSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
     }
     
@@ -159,41 +144,29 @@ class MainActivity : AppCompatActivity() {
         val network = cm.activeNetwork
         val capabilities = network?.let { cm.getNetworkCapabilities(it) }
         isOnline = capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
-        
         connectionStatus.visibility = View.VISIBLE
-        connectionStatus.setBackgroundResource(
-            if (isOnline) R.drawable.status_dot_online else R.drawable.status_dot_offline
-        )
+        connectionStatus.setBackgroundResource(if (isOnline) R.drawable.status_dot_online else R.drawable.status_dot_offline)
     }
     
     private fun setupFirebase() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                android.util.Log.d("FCM_TOKEN", task.result)
-            }
+            if (task.isSuccessful) android.util.Log.d("FCM_TOKEN", task.result)
         }
     }
     
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.POST_NOTIFICATIONS), 200)
             }
         }
-        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!packageManager.canRequestPackageInstalls()) {
                 AlertDialog.Builder(this)
                     .setTitle("Разрешите установку")
-                    .setMessage("Для автообновлений нужно разрешить установку приложений")
-                    .setPositiveButton("Настройки") { _, _ ->
-                        startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                            data = Uri.parse("package:$packageName")
-                        })
-                    }
-                    .setNegativeButton("Отмена", null)
-                    .show()
+                    .setMessage("Для автообновлений нужно разрешить установку")
+                    .setPositiveButton("Настройки") { _, _ -> startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply { data = Uri.parse("package:$packageName") }) }
+                    .setNegativeButton("Отмена", null).show()
             }
         }
     }
@@ -201,7 +174,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         checkConnection()
-        UpdateChecker.checkForUpdate(this)  // Автоматическая проверка
+        UpdateChecker.checkForUpdate(this)
     }
     
     override fun onBackPressed() {
@@ -211,8 +184,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1001) {
-            val results = if (resultCode == RESULT_OK && data?.data != null) arrayOf(data.data!!) else null
-            filePathCallback?.onReceiveValue(results)
+            filePathCallback?.onReceiveValue(if (resultCode == RESULT_OK && data?.data != null) arrayOf(data.data!!) else null)
             filePathCallback = null
         }
     }

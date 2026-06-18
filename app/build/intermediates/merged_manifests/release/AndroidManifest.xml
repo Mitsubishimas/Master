@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.mastermitsu.cvt"
     android:versionCode="1"
-    android:versionName="1.0.0" >
+    android:versionName="2.8.0" >
 
     <uses-sdk
         android:minSdkVersion="21"
@@ -48,6 +48,10 @@
             android:name="com.mastermitsu.cvt.MainActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false" />
+        <activity
+            android:name="com.mastermitsu.cvt.SettingsActivity"
+            android:exported="false"
+            android:label="Настройки" />
 
         <service
             android:name="com.mastermitsu.cvt.FirebaseMessagingService"

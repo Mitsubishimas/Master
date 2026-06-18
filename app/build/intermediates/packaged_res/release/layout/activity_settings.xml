@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0a0f1e"
+    android:padding="16dp">
+    
+    <!-- Заголовок -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Настройки"
+        android:textColor="#00D2FF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:paddingBottom="16dp" />
+    
+    <!-- Раздел: Уведомления -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="УВЕДОМЛЕНИЯ"
+        android:textColor="#888888"
+        android:textSize="12sp"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp" />
+    
+    <!-- Звук -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="#1a1f2e"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:layout_marginBottom="1dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Звук уведомлений"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+        <Switch
+            android:id="@+id/soundSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    
+    <!-- Вибрация -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="#1a1f2e"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:layout_marginBottom="1dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Вибрация"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+        <Switch
+            android:id="@+id/vibrationSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    
+    <!-- Мелодия -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="#1a1f2e"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:layout_marginBottom="1dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Мелодия"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+        <Spinner
+            android:id="@+id/soundSpinner"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    
+    <!-- Раздел: Оформление -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="ОФОРМЛЕНИЕ"
+        android:textColor="#888888"
+        android:textSize="12sp"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp" />
+    
+    <!-- Тёмная тема -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:background="#1a1f2e"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:layout_marginBottom="1dp">
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Тёмная тема"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp" />
+        <Switch
+            android:id="@+id/darkThemeSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+    
+    <!-- Раздел: О программе -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="О ПРОГРАММЕ"
+        android:textColor="#888888"
+        android:textSize="12sp"
+        android:paddingTop="24dp"
+        android:paddingBottom="8dp" />
+    
+    <!-- Информация -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#1a1f2e"
+        android:padding="16dp">
+        
+        <TextView
+            android:id="@+id/versionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Версия: 2.8.0\nПакет: com.mastermitsu.cvt"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:lineSpacingExtra="4dp" />
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="\nMaster — официальное приложение mastermitsu.ru\n© 2024 CVT"
+            android:textColor="#888888"
+            android:textSize="12sp"
+            android:paddingTop="8dp" />
+            
+    </LinearLayout>
+    
+</LinearLayout>
