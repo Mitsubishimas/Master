@@ -840,6 +840,7 @@ id soundSwitch
 id spacer
 id special_effects_controller_view_tag
 id splashLogo
+id splashText
 id split_action_bar
 id src_atop
 id src_in

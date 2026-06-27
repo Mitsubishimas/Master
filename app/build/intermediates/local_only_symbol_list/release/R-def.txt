@@ -19,6 +19,7 @@ id errorText
 id progressBar
 id soundSwitch
 id splashLogo
+id splashText
 id versionText
 id vibrationSwitch
 id webView

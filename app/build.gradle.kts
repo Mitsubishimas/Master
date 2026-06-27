@@ -12,8 +12,8 @@ android {
         applicationId = "com.mastermitsu.cvt"
         minSdk = 21
         targetSdk = 34
-        versionCode = 7
-        versionName = "2.9.3"
+        versionCode = 8
+        versionName = "2.10.0"
     }
 
     signingConfigs {

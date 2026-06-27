@@ -42,6 +42,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         
+        // ВАЖНО: Включаем отладку WebView (для Chrome DevTools)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            WebView.setWebContentsDebuggingEnabled(true)
+        }
+        
         webView = findViewById(R.id.webView)
         progressBar = findViewById(R.id.progressBar)
         errorText = findViewById(R.id.errorText)
@@ -52,9 +57,7 @@ class MainActivity : AppCompatActivity() {
         btnRefresh = findViewById(R.id.btnRefresh)
         btnSettings = findViewById(R.id.btnSettings)
         
-        // СРАЗУ запрашиваем ВСЕ разрешения
         requestAllPermissions()
-        
         setupWebView()
         setupNavigation()
         checkConnection()
@@ -73,16 +76,12 @@ class MainActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
             permissions.add(Manifest.permission.RECORD_AUDIO)
         
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED)
+            permissions.add(Manifest.permission.MODIFY_AUDIO_SETTINGS)
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
                 permissions.add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-        
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
         
         if (permissions.isNotEmpty()) {
@@ -94,9 +93,21 @@ class MainActivity : AppCompatActivity() {
                 .setTitle("Установка приложений")
                 .setMessage("Для обновлений разрешите установку")
                 .setPositiveButton("Настройки") { _, _ ->
-                    startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply { data = Uri.parse("package:$packageName") })
+                    startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                        data = Uri.parse("package:$packageName")
+                    })
                 }
                 .setNegativeButton("Позже", null).show()
+        }
+    }
+    
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 200) {
+            val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            android.util.Log.d("PERMISSIONS", "All granted: $allGranted")
+            // Перезагружаем страницу чтобы применить разрешения
+            if (allGranted) webView.reload()
         }
     }
     
@@ -112,9 +123,15 @@ class MainActivity : AppCompatActivity() {
             builtInZoomControls = true
             displayZoomControls = false
             userAgentString = "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 CVT-App"
+            // ВАЖНО: разрешаем медиа без жестов пользователя
             mediaPlaybackRequiresUserGesture = false
             useWideViewPort = true
             loadWithOverviewMode = true
+            allowFileAccessFromFileURLs = true
+            allowUniversalAccessFromFileURLs = true
+            // Кэш и данные
+            cacheMode = WebSettings.LOAD_DEFAULT
+            databaseEnabled = true
         }
         
         CookieManager.getInstance().setAcceptCookie(true)
@@ -132,7 +149,7 @@ class MainActivity : AppCompatActivity() {
                 val url = request?.url.toString()
                 if (!url.contains("mastermitsu.ru")) {
                     try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-                    catch (e: Exception) { Toast.makeText(this@MainActivity, "Ошибка ссылки", Toast.LENGTH_SHORT).show() }
+                    catch (e: Exception) { Toast.makeText(this@MainActivity, "Ошибка", Toast.LENGTH_SHORT).show() }
                     return true
                 }
                 return false
@@ -144,13 +161,28 @@ class MainActivity : AppCompatActivity() {
                 progressBar.progress = newProgress
                 if (newProgress == 100) progressBar.visibility = ProgressBar.GONE
             }
+            
+            // КЛЮЧЕВОЕ: Всегда разрешаем доступ к микрофону/камере
             override fun onPermissionRequest(request: PermissionRequest?) {
-                request?.grant(request.resources)
+                request?.let {
+                    android.util.Log.d("WEBVIEW_PERM", "Resources: ${it.resources.joinToString()}")
+                    // Всегда разрешаем — разрешения уже проверены в requestAllPermissions()
+                    it.grant(it.resources)
+                }
             }
-            override fun onShowFileChooser(webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?): Boolean {
+            
+            override fun onShowFileChooser(
+                webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?
+            ): Boolean {
                 this@MainActivity.filePathCallback = filePathCallback
                 try { startActivityForResult(Intent.createChooser(fileChooserParams?.createIntent(), "Выберите"), 1001) }
                 catch (e: Exception) { filePathCallback?.onReceiveValue(null) }
+                return true
+            }
+            
+            // Логирование консоли сайта
+            override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
+                android.util.Log.d("WEBVIEW_CONSOLE", "${consoleMessage?.message()}")
                 return true
             }
         }
@@ -168,7 +200,7 @@ class MainActivity : AppCompatActivity() {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                 }
             } catch (e: Exception) {
-                Toast.makeText(this, "Ошибка загрузки", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Ошибка", Toast.LENGTH_SHORT).show()
             }
         }
     }
