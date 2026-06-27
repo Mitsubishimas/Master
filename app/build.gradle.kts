@@ -12,8 +12,8 @@ android {
         applicationId = "com.mastermitsu.cvt"
         minSdk = 21
         targetSdk = 34
-        versionCode = 4
-        versionName = "2.9.1"
+        versionCode = 5
+        versionName = "2.9.2"
     }
 
     signingConfigs {
@@ -50,7 +50,7 @@ android {
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
-    implementation(platform("com.google.firebase:firebase-bom:32.7.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
     implementation("com.google.firebase:firebase-messaging-ktx")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }

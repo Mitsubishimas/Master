@@ -10,6 +10,7 @@ import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Environment
 import android.provider.Settings
 import android.view.View
 import android.webkit.*
@@ -34,7 +35,10 @@ class MainActivity : AppCompatActivity() {
     
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var isOnline = true
-    private var cameraPermissionRequested = false
+    
+    companion object {
+        private const val PERMISSION_REQUEST_CODE = 200
+    }
     
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,6 +81,8 @@ class MainActivity : AppCompatActivity() {
             mediaPlaybackRequiresUserGesture = false
             useWideViewPort = true
             loadWithOverviewMode = true
+            allowFileAccessFromFileURLs = true
+            allowUniversalAccessFromFileURLs = true
         }
         
         CookieManager.getInstance().setAcceptCookie(true)
@@ -109,32 +115,45 @@ class MainActivity : AppCompatActivity() {
             }
             
             override fun onPermissionRequest(request: PermissionRequest?) {
-                // Автоматически разрешаем WebView-запросы (камера, микрофон)
                 request?.grant(request.resources)
             }
             
             override fun onShowFileChooser(webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?): Boolean {
-                // Проверяем разрешение камеры перед открытием
-                if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.CAMERA) 
-                    != PackageManager.PERMISSION_GRANTED) {
-                    requestCameraPermission()
+                if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                    requestAllPermissions()
                     filePathCallback?.onReceiveValue(null)
                     return true
                 }
                 
                 this@MainActivity.filePathCallback = filePathCallback
                 try { 
-                    val intent = fileChooserParams?.createIntent()
-                    startActivityForResult(Intent.createChooser(intent, "Выберите файл"), 1001)
-                }
-                catch (e: Exception) { filePathCallback?.onReceiveValue(null) }
+                    startActivityForResult(Intent.createChooser(fileChooserParams?.createIntent(), "Выберите файл"), 1001)
+                } catch (e: Exception) { filePathCallback?.onReceiveValue(null) }
                 return true
             }
         }
         
-        webView.setDownloadListener { url, _, _, _, _ ->
-            try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-            catch (e: Exception) { Toast.makeText(this, "Не удалось открыть файл", Toast.LENGTH_SHORT).show() }
+        // Улучшенная обработка загрузок
+        webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, contentLength ->
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    // Android 10+ — используем DownloadManager
+                    val request = DownloadManager.Request(Uri.parse(url))
+                        .setTitle("Скачивание файла")
+                        .setDescription("Загрузка...")
+                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, url.substringAfterLast("/"))
+                    
+                    val dm = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
+                    dm.enqueue(request)
+                    Toast.makeText(this, "Загрузка началась", Toast.LENGTH_SHORT).show()
+                } else {
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this, "Не удалось скачать файл", Toast.LENGTH_SHORT).show()
+            }
         }
     }
     
@@ -173,66 +192,45 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun requestAllPermissions() {
-        val permissionsToRequest = mutableListOf<String>()
+        val permissions = mutableListOf<String>()
         
-        // Проверка уведомлений (Android 13+)
+        // Камера
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+            permissions.add(Manifest.permission.CAMERA)
+        
+        // Микрофон
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+            permissions.add(Manifest.permission.RECORD_AUDIO)
+        
+        // Уведомления (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) 
-                != PackageManager.PERMISSION_GRANTED) {
-                permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
-            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+                permissions.add(Manifest.permission.POST_NOTIFICATIONS)
         }
         
-        // Проверка камеры
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) 
-            != PackageManager.PERMISSION_GRANTED) {
-            permissionsToRequest.add(Manifest.permission.CAMERA)
+        // Хранилище (Android 12 и ниже)
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
         
-        if (permissionsToRequest.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, permissionsToRequest.toTypedArray(), 200)
+        if (permissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), PERMISSION_REQUEST_CODE)
         }
         
-        // Разрешение на установку (Android 8+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            if (!packageManager.canRequestPackageInstalls()) {
-                AlertDialog.Builder(this)
-                    .setTitle("Разрешите установку")
-                    .setMessage("Для автообновлений нужно разрешить установку приложений")
-                    .setPositiveButton("Настройки") { _, _ -> 
-                        startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply { 
-                            data = Uri.parse("package:$packageName") 
-                        }) 
-                    }
-                    .setNegativeButton("Отмена", null)
-                    .show()
-            }
-        }
-    }
-    
-    private fun requestCameraPermission() {
-        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+        // Разрешение на установку
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !packageManager.canRequestPackageInstalls()) {
             AlertDialog.Builder(this)
-                .setTitle("Доступ к камере")
-                .setMessage("Для сканирования QR-кодов и загрузки файлов нужен доступ к камере")
-                .setPositiveButton("Разрешить") { _, _ ->
-                    ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 201)
+                .setTitle("Разрешите установку")
+                .setMessage("Для автообновлений нужно разрешить установку приложений")
+                .setPositiveButton("Настройки") { _, _ -> 
+                    startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply { 
+                        data = Uri.parse("package:$packageName") 
+                    }) 
                 }
-                .setNegativeButton("Отмена", null)
-                .show()
-        } else {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 201)
-        }
-    }
-    
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 200 || requestCode == 201) {
-            for (i in permissions.indices) {
-                if (permissions[i] == Manifest.permission.CAMERA && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Камера разрешена", Toast.LENGTH_SHORT).show()
-                }
-            }
+                .setNegativeButton("Отмена", null).show()
         }
     }
     
@@ -249,8 +247,7 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 1001) {
-            val results = if (resultCode == RESULT_OK && data?.data != null) arrayOf(data.data!!) else null
-            filePathCallback?.onReceiveValue(results)
+            filePathCallback?.onReceiveValue(if (resultCode == RESULT_OK && data?.data != null) arrayOf(data.data!!) else null)
             filePathCallback = null
         }
     }
