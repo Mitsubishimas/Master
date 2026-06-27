@@ -30,9 +30,13 @@ class SettingsActivity : AppCompatActivity() {
         soundSwitch.isChecked = prefs.getBoolean("sound_enabled", true)
         vibrationSwitch.isChecked = prefs.getBoolean("vibration_enabled", true)
         
-        // Получаем версию из BuildConfig
-        val versionName = BuildConfig.VERSION_NAME
-        versionText.text = "Версия: $versionName\nПакет: com.mastermitsu.cvt"
+        // Получаем версию напрямую
+        try {
+            val pkgInfo = packageManager.getPackageInfo(packageName, 0)
+            versionText.text = "Версия: ${pkgInfo.versionName}\nПакет: $packageName"
+        } catch (e: Exception) {
+            versionText.text = "Версия: 2.9.2\nПакет: com.mastermitsu.cvt"
+        }
     }
     
     private fun setupListeners() {

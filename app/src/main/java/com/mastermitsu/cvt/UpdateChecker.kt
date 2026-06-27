@@ -1,6 +1,7 @@
 package com.mastermitsu.cvt
 
 import android.app.DownloadManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -24,7 +25,7 @@ object UpdateChecker {
     private const val PREFS_NAME = "cvt_update_prefs"
     private const val LAST_CHECK_KEY = "last_update_check"
     private const val GITHUB_API = "https://api.github.com/repos/Mitsubishimas/Master/releases/latest"
-    private const val CURRENT_VERSION = "v2.9.2"
+    private const val CURRENT_VERSION = "v2.9.3"
     
     fun checkForUpdate(context: Context, showDialog: Boolean = false) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
@@ -89,9 +90,12 @@ object UpdateChecker {
     private fun showUpdateDialog(context: Context, version: String, downloadUrl: String) {
         AlertDialog.Builder(context)
             .setTitle("Доступно обновление")
-            .setMessage("Новая версия $version\nТекущая: $CURRENT_VERSION\n\nОбновить?")
-            .setPositiveButton("Скачать") { _, _ -> downloadAndInstall(context, downloadUrl) }
+            .setMessage("Новая версия $version\nТекущая: $CURRENT_VERSION\n\nСтарая версия будет удалена автоматически.\nПродолжить?")
+            .setPositiveButton("Обновить") { _, _ ->
+                downloadAndInstall(context, downloadUrl)
+            }
             .setNegativeButton("Позже", null)
+            .setCancelable(false)
             .show()
     }
     
@@ -102,46 +106,66 @@ object UpdateChecker {
             
             val dm = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
             val request = DownloadManager.Request(Uri.parse(downloadUrl))
-                .setTitle("Скачивание Master")
+                .setTitle("Скачивание обновления Master")
+                .setDescription("Загрузка новой версии...")
                 .setDestinationUri(Uri.fromFile(file))
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setAllowedOverMetered(true)
+                .setAllowedOverRoaming(true)
             
             val downloadId = dm.enqueue(request)
             
-            val receiver = object : BroadcastReceiver() {
+            val onComplete = object : BroadcastReceiver() {
                 override fun onReceive(ctx: Context, intent: Intent) {
-                    if (intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1) == downloadId) {
-                        installApk(ctx, file)
+                    val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+                    if (id == downloadId) {
                         ctx.unregisterReceiver(this)
+                        installAndRemoveOld(ctx, file)
                     }
                 }
             }
             
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                context.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED)
+                context.registerReceiver(onComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_NOT_EXPORTED)
             } else {
-                context.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+                context.registerReceiver(onComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
             }
             
             Toast.makeText(context, "Загрузка началась...", Toast.LENGTH_SHORT).show()
+            
         } catch (e: Exception) {
-            Toast.makeText(context, "Ошибка загрузки", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Ошибка загрузки: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
     
-    private fun installApk(context: Context, file: File) {
+    private fun installAndRemoveOld(context: Context, file: File) {
         try {
             val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
-            } else { Uri.fromFile(file) }
+            } else {
+                Uri.fromFile(file)
+            }
             
-            context.startActivity(Intent(Intent.ACTION_VIEW).apply {
+            // Создаём Intent для установки с флагом удаления старой версии
+            val installIntent = Intent(Intent.ACTION_VIEW).apply {
                 setDataAndType(uri, "application/vnd.android.package-archive")
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            })
+                // Флаг для замены существующего приложения
+                putExtra(Intent.EXTRA_REPLACING, true)
+                putExtra(Intent.EXTRA_NOT_UNKNOWN_SOURCE, true)
+                putExtra(Intent.EXTRA_INSTALLER_PACKAGE_NAME, context.packageName)
+            }
+            
+            context.startActivity(installIntent)
+            
+            // Показываем инструкцию
+            Handler(Looper.getMainLooper()).postDelayed({
+                Toast.makeText(context, "Подтвердите установку обновления", Toast.LENGTH_LONG).show()
+            }, 1000)
+            
         } catch (e: Exception) {
-            Toast.makeText(context, "Ошибка установки", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, "Ошибка установки: ${e.message}", Toast.LENGTH_LONG).show()
         }
     }
 }
