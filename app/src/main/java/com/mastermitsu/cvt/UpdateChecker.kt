@@ -25,7 +25,7 @@ object UpdateChecker {
     private const val PREFS_NAME = "cvt_update_prefs"
     private const val LAST_CHECK_KEY = "last_update_check"
     private const val GITHUB_API = "https://api.github.com/repos/Mitsubishimas/Master/releases/latest"
-    private const val CURRENT_VERSION = "v2.10.0"
+    private const val CURRENT_VERSION = "v2.10.1"
     
     fun checkForUpdate(context: Context, showDialog: Boolean = false) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
