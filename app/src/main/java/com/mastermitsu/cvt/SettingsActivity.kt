@@ -29,20 +29,19 @@ class SettingsActivity : AppCompatActivity() {
     private fun loadSettings() {
         soundSwitch.isChecked = prefs.getBoolean("sound_enabled", true)
         vibrationSwitch.isChecked = prefs.getBoolean("vibration_enabled", true)
-        versionText.text = "Версия: 2.9.1\nПакет: com.mastermitsu.cvt"
+        
+        // Получаем версию из BuildConfig
+        val versionName = BuildConfig.VERSION_NAME
+        versionText.text = "Версия: $versionName\nПакет: com.mastermitsu.cvt"
     }
     
     private fun setupListeners() {
         soundSwitch.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean("sound_enabled", isChecked).apply()
-            Toast.makeText(this, if (isChecked) "Звук включён" else "Звук выключен", Toast.LENGTH_SHORT).show()
         }
-        
         vibrationSwitch.setOnCheckedChangeListener { _, isChecked ->
             prefs.edit().putBoolean("vibration_enabled", isChecked).apply()
-            Toast.makeText(this, if (isChecked) "Вибрация включена" else "Вибрация выключена", Toast.LENGTH_SHORT).show()
         }
-        
         btnCheckUpdate.setOnClickListener {
             UpdateChecker.checkForUpdate(this, true)
         }

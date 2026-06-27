@@ -2,6 +2,7 @@ package com.mastermitsu.cvt
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.DownloadManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -36,10 +37,6 @@ class MainActivity : AppCompatActivity() {
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private var isOnline = true
     
-    companion object {
-        private const val PERMISSION_REQUEST_CODE = 200
-    }
-    
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,14 +52,52 @@ class MainActivity : AppCompatActivity() {
         btnRefresh = findViewById(R.id.btnRefresh)
         btnSettings = findViewById(R.id.btnSettings)
         
+        // СРАЗУ запрашиваем ВСЕ разрешения
+        requestAllPermissions()
+        
         setupWebView()
         setupNavigation()
         checkConnection()
         setupFirebase()
-        requestAllPermissions()
         
         val url = intent.getStringExtra("url") ?: "https://mastermitsu.ru"
         webView.loadUrl(url)
+    }
+    
+    private fun requestAllPermissions() {
+        val permissions = mutableListOf<String>()
+        
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
+            permissions.add(Manifest.permission.CAMERA)
+        
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
+            permissions.add(Manifest.permission.RECORD_AUDIO)
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+                permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+                permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+        
+        if (permissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), 200)
+        }
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !packageManager.canRequestPackageInstalls()) {
+            AlertDialog.Builder(this)
+                .setTitle("Установка приложений")
+                .setMessage("Для обновлений разрешите установку")
+                .setPositiveButton("Настройки") { _, _ ->
+                    startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply { data = Uri.parse("package:$packageName") })
+                }
+                .setNegativeButton("Позже", null).show()
+        }
     }
     
     @SuppressLint("SetJavaScriptEnabled")
@@ -73,7 +108,6 @@ class MainActivity : AppCompatActivity() {
             allowFileAccess = true
             allowContentAccess = true
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-            cacheMode = WebSettings.LOAD_DEFAULT
             setSupportZoom(true)
             builtInZoomControls = true
             displayZoomControls = false
@@ -81,8 +115,6 @@ class MainActivity : AppCompatActivity() {
             mediaPlaybackRequiresUserGesture = false
             useWideViewPort = true
             loadWithOverviewMode = true
-            allowFileAccessFromFileURLs = true
-            allowUniversalAccessFromFileURLs = true
         }
         
         CookieManager.getInstance().setAcceptCookie(true)
@@ -92,7 +124,6 @@ class MainActivity : AppCompatActivity() {
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 progressBar.visibility = ProgressBar.VISIBLE
                 errorText.visibility = TextView.GONE
-                webView.visibility = WebView.VISIBLE
             }
             override fun onPageFinished(view: WebView?, url: String?) {
                 progressBar.visibility = ProgressBar.GONE
@@ -101,7 +132,7 @@ class MainActivity : AppCompatActivity() {
                 val url = request?.url.toString()
                 if (!url.contains("mastermitsu.ru")) {
                     try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-                    catch (e: Exception) { Toast.makeText(this@MainActivity, "Не удалось открыть ссылку", Toast.LENGTH_SHORT).show() }
+                    catch (e: Exception) { Toast.makeText(this@MainActivity, "Ошибка ссылки", Toast.LENGTH_SHORT).show() }
                     return true
                 }
                 return false
@@ -113,124 +144,52 @@ class MainActivity : AppCompatActivity() {
                 progressBar.progress = newProgress
                 if (newProgress == 100) progressBar.visibility = ProgressBar.GONE
             }
-            
             override fun onPermissionRequest(request: PermissionRequest?) {
                 request?.grant(request.resources)
             }
-            
             override fun onShowFileChooser(webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?): Boolean {
-                if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                    requestAllPermissions()
-                    filePathCallback?.onReceiveValue(null)
-                    return true
-                }
-                
                 this@MainActivity.filePathCallback = filePathCallback
-                try { 
-                    startActivityForResult(Intent.createChooser(fileChooserParams?.createIntent(), "Выберите файл"), 1001)
-                } catch (e: Exception) { filePathCallback?.onReceiveValue(null) }
+                try { startActivityForResult(Intent.createChooser(fileChooserParams?.createIntent(), "Выберите"), 1001) }
+                catch (e: Exception) { filePathCallback?.onReceiveValue(null) }
                 return true
             }
         }
         
-        // Улучшенная обработка загрузок
-        webView.setDownloadListener { url, userAgent, contentDisposition, mimetype, contentLength ->
+        webView.setDownloadListener { url, _, _, _, _ ->
             try {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    // Android 10+ — используем DownloadManager
-                    val request = DownloadManager.Request(Uri.parse(url))
-                        .setTitle("Скачивание файла")
-                        .setDescription("Загрузка...")
-                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, url.substringAfterLast("/"))
-                    
                     val dm = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-                    dm.enqueue(request)
-                    Toast.makeText(this, "Загрузка началась", Toast.LENGTH_SHORT).show()
+                    dm.enqueue(DownloadManager.Request(Uri.parse(url))
+                        .setTitle("Скачивание")
+                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, url.substringAfterLast("/")))
+                    Toast.makeText(this, "Загрузка...", Toast.LENGTH_SHORT).show()
                 } else {
                     startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
                 }
             } catch (e: Exception) {
-                Toast.makeText(this, "Не удалось скачать файл", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Ошибка загрузки", Toast.LENGTH_SHORT).show()
             }
         }
     }
     
     private fun setupNavigation() {
-        btnBack.setOnClickListener {
-            if (webView.canGoBack()) webView.goBack()
-            else Toast.makeText(this, "Главная страница", Toast.LENGTH_SHORT).show()
-        }
+        btnBack.setOnClickListener { if (webView.canGoBack()) webView.goBack() else Toast.makeText(this, "Главная", Toast.LENGTH_SHORT).show() }
         btnHome.setOnClickListener { webView.loadUrl("https://mastermitsu.ru") }
-        btnForward.setOnClickListener {
-            if (webView.canGoForward()) webView.goForward()
-            else Toast.makeText(this, "Нет следующей страницы", Toast.LENGTH_SHORT).show()
-        }
-        btnRefresh.setOnClickListener {
-            if (isOnline) webView.reload()
-            else Toast.makeText(this, "Нет подключения", Toast.LENGTH_SHORT).show()
-        }
-        btnSettings.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
-        }
+        btnForward.setOnClickListener { if (webView.canGoForward()) webView.goForward() else Toast.makeText(this, "Нет страниц", Toast.LENGTH_SHORT).show() }
+        btnRefresh.setOnClickListener { if (isOnline) webView.reload() else Toast.makeText(this, "Нет сети", Toast.LENGTH_SHORT).show() }
+        btnSettings.setOnClickListener { startActivity(Intent(this, SettingsActivity::class.java)) }
     }
     
     private fun checkConnection() {
         val cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager
-        val network = cm.activeNetwork
-        val capabilities = network?.let { cm.getNetworkCapabilities(it) }
-        isOnline = capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
-        connectionStatus.visibility = View.VISIBLE
+        isOnline = cm.activeNetwork?.let { cm.getNetworkCapabilities(it)?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) } == true
         connectionStatus.setBackgroundResource(if (isOnline) R.drawable.status_dot_online else R.drawable.status_dot_offline)
     }
     
     private fun setupFirebase() {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (task.isSuccessful) android.util.Log.d("FCM_TOKEN", task.result)
-        }
-    }
-    
-    private fun requestAllPermissions() {
-        val permissions = mutableListOf<String>()
-        
-        // Камера
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
-            permissions.add(Manifest.permission.CAMERA)
-        
-        // Микрофон
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-            permissions.add(Manifest.permission.RECORD_AUDIO)
-        
-        // Уведомления (Android 13+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
-                permissions.add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-        
-        // Хранилище (Android 12 и ниже)
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                permissions.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                permissions.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-        
-        if (permissions.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), PERMISSION_REQUEST_CODE)
-        }
-        
-        // Разрешение на установку
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !packageManager.canRequestPackageInstalls()) {
-            AlertDialog.Builder(this)
-                .setTitle("Разрешите установку")
-                .setMessage("Для автообновлений нужно разрешить установку приложений")
-                .setPositiveButton("Настройки") { _, _ -> 
-                    startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply { 
-                        data = Uri.parse("package:$packageName") 
-                    }) 
-                }
-                .setNegativeButton("Отмена", null).show()
+            if (task.isSuccessful) android.util.Log.d("FCM", task.result)
         }
     }
     

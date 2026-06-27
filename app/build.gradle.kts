@@ -12,7 +12,7 @@ android {
         applicationId = "com.mastermitsu.cvt"
         minSdk = 21
         targetSdk = 34
-        versionCode = 5
+        versionCode = 6
         versionName = "2.9.2"
     }
 
