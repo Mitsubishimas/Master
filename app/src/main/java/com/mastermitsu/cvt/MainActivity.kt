@@ -42,7 +42,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         
-        // ВАЖНО: Включаем отладку WebView (для Chrome DevTools)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WebView.setWebContentsDebuggingEnabled(true)
         }
@@ -62,6 +61,7 @@ class MainActivity : AppCompatActivity() {
         setupNavigation()
         checkConnection()
         setupFirebase()
+        startKeepAliveService()
         
         val url = intent.getStringExtra("url") ?: "https://mastermitsu.ru"
         webView.loadUrl(url)
@@ -69,139 +69,34 @@ class MainActivity : AppCompatActivity() {
     
     private fun requestAllPermissions() {
         val permissions = mutableListOf<String>()
-        
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
             permissions.add(Manifest.permission.CAMERA)
-        
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
             permissions.add(Manifest.permission.RECORD_AUDIO)
-        
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED)
-            permissions.add(Manifest.permission.MODIFY_AUDIO_SETTINGS)
-        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
                 permissions.add(Manifest.permission.POST_NOTIFICATIONS)
         }
-        
-        if (permissions.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), 200)
-        }
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !packageManager.canRequestPackageInstalls()) {
-            AlertDialog.Builder(this)
-                .setTitle("Установка приложений")
-                .setMessage("Для обновлений разрешите установку")
-                .setPositiveButton("Настройки") { _, _ ->
-                    startActivity(Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                        data = Uri.parse("package:$packageName")
-                    })
-                }
-                .setNegativeButton("Позже", null).show()
-        }
-    }
-    
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 200) {
-            val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
-            android.util.Log.d("PERMISSIONS", "All granted: $allGranted")
-            // Перезагружаем страницу чтобы применить разрешения
-            if (allGranted) webView.reload()
-        }
+        if (permissions.isNotEmpty()) ActivityCompat.requestPermissions(this, permissions.toTypedArray(), 200)
     }
     
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
         webView.settings.apply {
-            javaScriptEnabled = true
-            domStorageEnabled = true
-            allowFileAccess = true
-            allowContentAccess = true
+            javaScriptEnabled = true; domStorageEnabled = true; allowFileAccess = true
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-            setSupportZoom(true)
-            builtInZoomControls = true
-            displayZoomControls = false
             userAgentString = "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 CVT-App"
-            // ВАЖНО: разрешаем медиа без жестов пользователя
             mediaPlaybackRequiresUserGesture = false
-            useWideViewPort = true
-            loadWithOverviewMode = true
-            allowFileAccessFromFileURLs = true
-            allowUniversalAccessFromFileURLs = true
-            // Кэш и данные
-            cacheMode = WebSettings.LOAD_DEFAULT
-            databaseEnabled = true
+            useWideViewPort = true; loadWithOverviewMode = true
         }
-        
         CookieManager.getInstance().setAcceptCookie(true)
-        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
         
         webView.webViewClient = object : WebViewClient() {
-            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-                progressBar.visibility = ProgressBar.VISIBLE
-                errorText.visibility = TextView.GONE
-            }
-            override fun onPageFinished(view: WebView?, url: String?) {
-                progressBar.visibility = ProgressBar.GONE
-            }
-            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
-                val url = request?.url.toString()
-                if (!url.contains("mastermitsu.ru")) {
-                    try { startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) }
-                    catch (e: Exception) { Toast.makeText(this@MainActivity, "Ошибка", Toast.LENGTH_SHORT).show() }
-                    return true
-                }
-                return false
-            }
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) { progressBar.visibility = ProgressBar.VISIBLE }
+            override fun onPageFinished(view: WebView?, url: String?) { progressBar.visibility = ProgressBar.GONE }
         }
-        
         webView.webChromeClient = object : WebChromeClient() {
-            override fun onProgressChanged(view: WebView?, newProgress: Int) {
-                progressBar.progress = newProgress
-                if (newProgress == 100) progressBar.visibility = ProgressBar.GONE
-            }
-            
-            // КЛЮЧЕВОЕ: Всегда разрешаем доступ к микрофону/камере
-            override fun onPermissionRequest(request: PermissionRequest?) {
-                request?.let {
-                    android.util.Log.d("WEBVIEW_PERM", "Resources: ${it.resources.joinToString()}")
-                    // Всегда разрешаем — разрешения уже проверены в requestAllPermissions()
-                    it.grant(it.resources)
-                }
-            }
-            
-            override fun onShowFileChooser(
-                webView: WebView?, filePathCallback: ValueCallback<Array<Uri>>?, fileChooserParams: FileChooserParams?
-            ): Boolean {
-                this@MainActivity.filePathCallback = filePathCallback
-                try { startActivityForResult(Intent.createChooser(fileChooserParams?.createIntent(), "Выберите"), 1001) }
-                catch (e: Exception) { filePathCallback?.onReceiveValue(null) }
-                return true
-            }
-            
-            // Логирование консоли сайта
-            override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
-                android.util.Log.d("WEBVIEW_CONSOLE", "${consoleMessage?.message()}")
-                return true
-            }
-        }
-        
-        webView.setDownloadListener { url, _, _, _, _ ->
-            try {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    val dm = getSystemService(DOWNLOAD_SERVICE) as DownloadManager
-                    dm.enqueue(DownloadManager.Request(Uri.parse(url))
-                        .setTitle("Скачивание")
-                        .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-                        .setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, url.substringAfterLast("/")))
-                    Toast.makeText(this, "Загрузка...", Toast.LENGTH_SHORT).show()
-                } else {
-                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
-                }
-            } catch (e: Exception) {
-                Toast.makeText(this, "Ошибка", Toast.LENGTH_SHORT).show()
-            }
+            override fun onPermissionRequest(request: PermissionRequest?) { request?.grant(request.resources) }
         }
     }
     
@@ -225,6 +120,12 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
+    private fun startKeepAliveService() {
+        val intent = Intent(this, KeepAliveService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) startForegroundService(intent)
+        else startService(intent)
+    }
+    
     override fun onResume() {
         super.onResume()
         checkConnection()
@@ -233,18 +134,5 @@ class MainActivity : AppCompatActivity() {
     
     override fun onBackPressed() {
         if (webView.canGoBack()) webView.goBack() else super.onBackPressed()
-    }
-    
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 1001) {
-            filePathCallback?.onReceiveValue(if (resultCode == RESULT_OK && data?.data != null) arrayOf(data.data!!) else null)
-            filePathCallback = null
-        }
-    }
-    
-    override fun onNewIntent(intent: Intent?) {
-        super.onNewIntent(intent)
-        intent?.getStringExtra("url")?.let { webView.loadUrl(it) }
     }
 }
