@@ -101,7 +101,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                 val json = org.json.JSONObject().apply {
                     put("token", token)
                     put("platform", "android")
-                    put("app_version", "2.10.1")
+                    put("app_version", "2.10.2")
                 }
                 
                 val client = okhttp3.OkHttpClient()
