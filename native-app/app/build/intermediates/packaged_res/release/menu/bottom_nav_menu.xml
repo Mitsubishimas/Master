@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_forum"
+        android:title="Форум"
+        android:icon="@drawable/ic_forum" />
+    <item
+        android:id="@+id/nav_chat"
+        android:title="Чат"
+        android:icon="@drawable/ic_chat" />
+    <item
+        android:id="@+id/nav_news"
+        android:title="Новости"
+        android:icon="@drawable/ic_news" />
+    <item
+        android:id="@+id/nav_market"
+        android:title="Барахолка"
+        android:icon="@drawable/ic_market" />
+    <item
+        android:id="@+id/nav_profile"
+        android:title="Профиль"
+        android:icon="@drawable/ic_profile" />
+</menu>

@@ -13,6 +13,10 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import org.json.JSONObject
 
 class FirebaseMessagingService : FirebaseMessagingService() {
     
@@ -32,9 +36,7 @@ class FirebaseMessagingService : FirebaseMessagingService() {
         super.onMessageReceived(message)
         
         Log.d("FCM", "Сообщение получено от: ${message.from}")
-        Log.d("FCM", "Данные: ${message.data}")
         
-        // Разбудить экран для показа уведомления
         wakeUpScreen()
         
         val title = message.notification?.title ?: message.data["title"] ?: "Master"
@@ -64,7 +66,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     private fun sendNotification(title: String, body: String, url: String, channelId: String) {
         val intent = Intent(this, MainActivity::class.java).apply {
             putExtra("url", url)
-            putExtra("from_notification", true)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         
@@ -86,7 +87,6 @@ class FirebaseMessagingService : FirebaseMessagingService() {
             .setContentIntent(pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .build()
         
         val manager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -98,15 +98,14 @@ class FirebaseMessagingService : FirebaseMessagingService() {
     private fun sendTokenToServer(token: String) {
         Thread {
             try {
-                val json = org.json.JSONObject().apply {
-                    put("token", token)
-                    put("platform", "android")
-                    put("app_version", "2.10.2")
-                }
+                val json = JSONObject()
+                json.put("token", token)
+                json.put("platform", "android")
+                json.put("app_version", "2.10.2")
                 
-                val client = okhttp3.OkHttpClient()
+                val client = OkHttpClient()
                 val body = json.toString().toRequestBody("application/json".toMediaType())
-                val request = okhttp3.Request.Builder()
+                val request = Request.Builder()
                     .url("https://mastermitsu.ru/api/push_token.php")
                     .post(body)
                     .build()
@@ -139,12 +138,9 @@ class FirebaseMessagingService : FirebaseMessagingService() {
                     enableVibration(true)
                     vibrationPattern = longArrayOf(0, 500, 200, 500)
                     setSound(soundUri, audioAttrs)
-                    setShowBadge(true)
                 }
                 manager.createNotificationChannel(channel)
             }
-            
-            Log.d("FCM", "Каналы уведомлений созданы")
         }
     }
     

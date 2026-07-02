@@ -69,34 +69,76 @@ class MainActivity : AppCompatActivity() {
     
     private fun requestAllPermissions() {
         val permissions = mutableListOf<String>()
+        
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED)
             permissions.add(Manifest.permission.CAMERA)
+        
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
             permissions.add(Manifest.permission.RECORD_AUDIO)
+        
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            permissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
+        
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION)
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                permissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+        }
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
                 permissions.add(Manifest.permission.POST_NOTIFICATIONS)
         }
-        if (permissions.isNotEmpty()) ActivityCompat.requestPermissions(this, permissions.toTypedArray(), 200)
+        
+        if (permissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissions.toTypedArray(), 200)
+        }
     }
     
     @SuppressLint("SetJavaScriptEnabled")
     private fun setupWebView() {
         webView.settings.apply {
-            javaScriptEnabled = true; domStorageEnabled = true; allowFileAccess = true
+            javaScriptEnabled = true
+            domStorageEnabled = true
+            allowFileAccess = true
             mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
             userAgentString = "Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 CVT-App"
             mediaPlaybackRequiresUserGesture = false
-            useWideViewPort = true; loadWithOverviewMode = true
+            useWideViewPort = true
+            loadWithOverviewMode = true
+            // Включаем геолокацию
+            setGeolocationEnabled(true)
+            setGeolocationDatabasePath(filesDir.path)
         }
+        
         CookieManager.getInstance().setAcceptCookie(true)
         
         webView.webViewClient = object : WebViewClient() {
-            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) { progressBar.visibility = ProgressBar.VISIBLE }
-            override fun onPageFinished(view: WebView?, url: String?) { progressBar.visibility = ProgressBar.GONE }
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                progressBar.visibility = ProgressBar.VISIBLE
+            }
+            override fun onPageFinished(view: WebView?, url: String?) {
+                progressBar.visibility = ProgressBar.GONE
+            }
+            override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
+                progressBar.visibility = ProgressBar.GONE
+            }
         }
+        
         webView.webChromeClient = object : WebChromeClient() {
-            override fun onPermissionRequest(request: PermissionRequest?) { request?.grant(request.resources) }
+            override fun onPermissionRequest(request: PermissionRequest?) {
+                request?.grant(request.resources)
+            }
+            
+            // ВАЖНО: Передаём геолокацию в WebView
+            override fun onGeolocationPermissionsShowPrompt(
+                origin: String?,
+                callback: GeolocationPermissions.Callback?
+            ) {
+                callback?.invoke(origin, true, true)
+            }
         }
     }
     

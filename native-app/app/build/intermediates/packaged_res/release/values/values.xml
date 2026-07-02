@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="accent">#E94560</color>
+    <color name="background">#060912</color>
+    <color name="card">#111827</color>
+    <color name="divider">#1F2937</color>
+    <color name="offline">#6B7280</color>
+    <color name="online">#10B981</color>
+    <color name="primary">#00D2FF</color>
+    <color name="primary_dark">#0099CC</color>
+    <color name="surface">#0a0f1e</color>
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#9CA3AF</color>
+    <string name="app_name">Master</string>
+    <string name="biometric_login">Войти по отпечатку</string>
+    <string name="chat">Чат</string>
+    <string name="email">Email</string>
+    <string name="forum">Форум</string>
+    <string name="gcm_defaultSenderId" translatable="false">983611811289</string>
+    <string name="google_api_key" translatable="false">AIzaSyBJHjqZVBaV_n9Mat3WS8oNL9EiaoyLfr4</string>
+    <string name="google_app_id" translatable="false">1:983611811289:android:0000000000000000</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyBJHjqZVBaV_n9Mat3WS8oNL9EiaoyLfr4</string>
+    <string name="google_storage_bucket" translatable="false">mastermitsu.firebasestorage.app</string>
+    <string name="login">Войти</string>
+    <string name="market">Барахолка</string>
+    <string name="news">Новости</string>
+    <string name="password">Пароль</string>
+    <string name="profile">Профиль</string>
+    <string name="project_id" translatable="false">mastermitsu</string>
+    <string name="remember_me">Запомнить меня</string>
+    <style name="Theme.MasterApp" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/text_primary</item>
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/accent</item>
+        <item name="android:statusBarColor">@color/background</item>
+        <item name="android:navigationBarColor">@color/background</item>
+        <item name="android:windowBackground">@color/background</item>
+    </style>
+    <style name="Theme.MasterApp.Splash" parent="Theme.MasterApp">
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+</resources>

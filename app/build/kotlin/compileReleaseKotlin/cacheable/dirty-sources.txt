@@ -1,7 +1,0 @@
-/workspaces/Master/app/src/main/java/com/mastermitsu/cvt/FirebaseMessagingService.kt
-/workspaces/Master/app/src/main/java/com/mastermitsu/cvt/KeepAliveService.kt
-/workspaces/Master/app/src/main/java/com/mastermitsu/cvt/SettingsActivity.kt
-/workspaces/Master/app/src/main/java/com/mastermitsu/cvt/MainActivity.kt
-/workspaces/Master/app/src/main/java/com/mastermitsu/cvt/UpdateChecker.kt
-/workspaces/Master/app/src/main/java/com/mastermitsu/cvt/SplashActivity.kt
-/workspaces/Master/app/src/main/java/com/mastermitsu/cvt/BootReceiver.kt

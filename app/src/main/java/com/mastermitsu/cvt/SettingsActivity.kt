@@ -24,18 +24,20 @@ class SettingsActivity : AppCompatActivity() {
         
         loadSettings()
         setupListeners()
+        
+        // Авто-проверка обновлений при открытии настроек
+        UpdateChecker.checkForUpdate(this, false)
     }
     
     private fun loadSettings() {
         soundSwitch.isChecked = prefs.getBoolean("sound_enabled", true)
         vibrationSwitch.isChecked = prefs.getBoolean("vibration_enabled", true)
         
-        // Получаем версию напрямую
         try {
             val pkgInfo = packageManager.getPackageInfo(packageName, 0)
             versionText.text = "Версия: ${pkgInfo.versionName}\nПакет: $packageName"
         } catch (e: Exception) {
-            versionText.text = "Версия: 2.9.2\nПакет: com.mastermitsu.cvt"
+            versionText.text = "Версия: 2.10.2\nПакет: com.mastermitsu.cvt"
         }
     }
     
@@ -47,6 +49,7 @@ class SettingsActivity : AppCompatActivity() {
             prefs.edit().putBoolean("vibration_enabled", isChecked).apply()
         }
         btnCheckUpdate.setOnClickListener {
+            Toast.makeText(this, "Проверка обновлений...", Toast.LENGTH_SHORT).show()
             UpdateChecker.checkForUpdate(this, true)
         }
     }

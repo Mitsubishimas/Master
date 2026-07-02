@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Master</string>
+    <string name="forum">Форум</string>
+    <string name="chat">Чат</string>
+    <string name="news">Новости</string>
+    <string name="market">Барахолка</string>
+    <string name="profile">Профиль</string>
+    <string name="login">Войти</string>
+    <string name="email">Email</string>
+    <string name="password">Пароль</string>
+    <string name="biometric_login">Войти по отпечатку</string>
+    <string name="remember_me">Запомнить меня</string>
+</resources>
